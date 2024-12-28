@@ -19,6 +19,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"], // Same methods as above
     credentials: true,
   },
+  transports: ["websocket", "polling"]
 });
 
 app.get('/', (req, res) => {
