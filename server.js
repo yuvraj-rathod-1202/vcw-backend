@@ -6,16 +6,19 @@ const cors = require("cors"); // Import cors
 const app = express();
 const server = http.createServer(app);
 
+
+
+
 // Enable CORS
 app.use(cors({
-  origin: ["https://vcw-frontend.vercel.app", "http://localhost:3000"], // Allow only your React app to access
+  origin: ["http://localhost:3000"], // Allow only your React app to access //"https://vcw-frontend.vercel.app", 
   methods: ["GET", "POST"], // Allowed HTTP methods
   credentials: true // Allow cookies if needed
 }));
 
 const io = new Server(server, {
   cors: {
-    origin: ["https://vcw-frontend.vercel.app", "http://localhost:3000"], // Allow React app
+    origin: ["http://localhost:3000"], // Allow React app
     methods: ["GET", "POST"], // Same methods as above
     credentials: true,
   },
@@ -29,16 +32,21 @@ app.get('/', (req, res) => {
 io.on("connection", (socket) => {
   console.log("A user connected");
 
+  socket.on("join-room", (roomId) => {
+    socket.join(roomId.id);
+    console.log(`${socket.id} joined room: ${roomId.id}`);
+  });
+
   socket.on("offer", (data) => {
-    socket.broadcast.emit("offer", data);
+    socket.broadcast.to(data.roomId.id).emit("offer", data.offer);
   });
 
   socket.on("answer", (data) => {
-    socket.broadcast.emit("answer", data);
+    socket.broadcast.to(data.roomId.id).emit("answer", data.answer);
   });
 
   socket.on("candidate", (data) => {
-    socket.broadcast.emit("candidate", data);
+    socket.broadcast.to(data.roomId.id).emit("candidate", data.candidate);
   });
 
   socket.on("disconnect", () => {
