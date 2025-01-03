@@ -11,14 +11,14 @@ const server = http.createServer(app);
 
 // Enable CORS
 app.use(cors({
-  origin: ["http://localhost:3000"], // Allow only your React app to access //"https://vcw-frontend.vercel.app", 
+  origin: ["http://localhost:3000", "https://vcw-frontend.vercel.app"], // Allow only your React app to access //"https://vcw-frontend.vercel.app", 
   methods: ["GET", "POST"], // Allowed HTTP methods
   credentials: true // Allow cookies if needed
 }));
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"], // Allow React app
+    origin: ["http://localhost:3000", "https://vcw-frontend.vercel.app"], // Allow React app
     methods: ["GET", "POST"], // Same methods as above
     credentials: true,
   },
