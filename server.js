@@ -49,6 +49,10 @@ io.on("connection", (socket) => {
     socket.broadcast.to(data.roomId.id).emit("candidate", data.candidate);
   });
 
+  socket.on("leave-room", () => {
+    socket.broadcast.emit("leave-room")
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });
