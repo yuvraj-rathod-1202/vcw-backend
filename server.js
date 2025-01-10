@@ -1,65 +1,57 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const cors = require("cors"); // Import cors
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
 const server = http.createServer(app);
-
-
-
-
-// Enable CORS
-app.use(cors({
-  origin: ["http://localhost:3000", "https://vcw-frontend.vercel.app"], // Allow only your React app to access //"https://vcw-frontend.vercel.app", 
-  methods: ["GET", "POST"], // Allowed HTTP methods
-  credentials: true // Allow cookies if needed
-}));
-
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://vcw-frontend.vercel.app"], // Allow React app
-    methods: ["GET", "POST"], // Same methods as above
-    credentials: true,
+    origin: ["http://localhost:3000", "https://vcw-frontend.vercel.app"], // Your frontend URL
+    methods: ["GET", "POST"],
   },
-  transports: ["websocket", "polling"]
 });
 
-app.get('/', (req, res) => {
-  res.send("Hello, World!");
-})
-
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("User connected:", socket.id);
 
-  socket.on("join-room", (roomId) => {
-    socket.join(roomId.id);
-    console.log(`${socket.id} joined room: ${roomId.id}`);
+  socket.on("join-room", ({ id }) => {
+    console.log(`${socket.id} joined room: ${id}`);
+    socket.join(id);
+    socket.broadcast.to(id).emit("user-joined", socket.id);
   });
 
   socket.on("offer", (data) => {
-    socket.broadcast.to(data.roomId.id).emit("offer", data.offer);
+    console.log(`${socket.id} offer to ${data.to}`)
+    socket.to(data.to).emit("offer", {
+      from: socket.id,
+      offer: data.offer,
+    });
   });
 
   socket.on("answer", (data) => {
-    socket.broadcast.to(data.roomId.id).emit("answer", data.answer);
+    console.log(`${socket.id} answer to ${data.to}`)
+    socket.to(data.to).emit("answer", {
+      from: socket.id,
+      answer: data.answer,
+    });
   });
 
   socket.on("candidate", (data) => {
-    socket.broadcast.to(data.roomId.id).emit("candidate", data.candidate);
-  });
-
-  socket.on("leave-room", () => {
-    socket.broadcast.emit("leave-room")
+    console.log(`${socket.id} candidate to ${data.to}`)
+    socket.to(data.to).emit("candidate", {
+      from: socket.id,
+      candidate: data.candidate,
+    });
   });
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    console.log("User disconnected:", socket.id);
   });
 });
 
-const PORT = process.env.PORT || 5000;
-
+const PORT = 5000;
 server.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
