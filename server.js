@@ -50,6 +50,14 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("sentmessagetoroom", (data) => {
+    console.log(`${socket.id} sent message to room: ${data.roomId}`);
+    socket.broadcast.to(data.roomId).emit("getmessagefromroom", {
+      from: socket.id,
+      message: data.message,
+    });
+  })
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
