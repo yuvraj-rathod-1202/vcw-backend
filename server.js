@@ -61,7 +61,6 @@ io.on("connection", (socket) => {
   socket.on("leave-room", (roomId) => {
     console.log(`${socket.id} left room: ${roomId}`);
     socket.to(roomId).emit("user-left", socket.id);
-    socket.leave(roomId);
   })
 
   socket.on("disconnect", () => {
