@@ -58,10 +58,10 @@ io.on("connection", (socket) => {
     });
   })
 
-  socket.on("leave-room", (data) => {
-    console.log(`${socket.id} left room: ${data.roomId}`);
-    socket.to(data.roomId).emit("user-left", socket.id);
-    socket.leave(data.roomId);
+  socket.on("leave-room", (roomId) => {
+    console.log(`${socket.id} left room: ${roomId}`);
+    socket.to(roomId).emit("user-left", socket.id);
+    socket.leave(roomId);
   })
 
   socket.on("disconnect", () => {
