@@ -60,8 +60,8 @@ io.on("connection", (socket) => {
 
   socket.on("leave-room", (data) => {
     console.log(`${socket.id} left room: ${data.roomId}`);
-    socket.leave(data.roomId);
     socket.broadcast.to(data.roomId).emit("user-left", socket.id);
+    socket.leave(data.roomId);
   })
 
   socket.on("disconnect", () => {
